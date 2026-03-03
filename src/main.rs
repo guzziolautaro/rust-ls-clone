@@ -1,20 +1,15 @@
 use std::io::{self, Write};
+use std::sync::Mutex;
 use std::{env, fs, process};
 
 fn main() {
-    let mut flags: Vec<String> = Vec::new();
-    let mut paths: Vec<String> = Vec::new();
+    let args = env::args().skip(1);
+
+    // partioning args to flags and paths
+    let (flags, mut paths): (Vec<String>, Vec<String>) = args.into_iter().partition(|a| a.starts_with('-'));
 
     let mut show_hidden = false;
-
-    for arg in env::args().skip(1) {
-        if arg.starts_with('-') {
-            flags.push(arg);
-        } else {
-            paths.push(arg);
-        }
-    }
-
+    // flag identifying
     for flag in &flags {
         match flag.as_str() {
             "-a" => {
