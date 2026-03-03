@@ -1,5 +1,4 @@
 use std::io::{self, Write};
-use std::sync::Mutex;
 use std::{env, fs, process};
 
 fn main() {
