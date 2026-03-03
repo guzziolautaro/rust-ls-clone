@@ -21,6 +21,7 @@ fn main() {
         }
     }
 
+    // defaulting to ./ if no path provided
     if paths.len() == 0 {
         paths.push("./".to_string());
     }
