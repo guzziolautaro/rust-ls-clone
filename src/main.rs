@@ -5,7 +5,7 @@ fn main() {
     let args = env::args().skip(1);
 
     // partioning args to flags and paths
-    let (flags, mut paths): (Vec<String>, Vec<String>) = args.into_iter().partition(|a| a.starts_with('-'));
+    let (flags, paths): (Vec<String>, Vec<String>) = args.into_iter().partition(|a| a.starts_with('-'));
 
     let mut show_hidden = false;
     // flag identifying
@@ -23,24 +23,24 @@ fn main() {
 
     // defaulting to ./ if no path provided
     if paths.len() == 0 {
-        paths.push("./".to_string());
-    }
-
-    for path in &paths {
-        display_contents(path, &show_hidden);
+        display_contents( "./", show_hidden);
+    } else {        
+        for path in &paths {
+            display_contents(path, show_hidden);
+        }
     }
 }
 
-fn display_contents(path: &String, show_hidden: &bool) {
+fn display_contents(path: &str, show_hidden: bool) {
     let paths = fs::read_dir(path).unwrap();
-    if *show_hidden {
+    if show_hidden {
         print!(". .. ")
     }
 
     for file in paths {
         let display_file = &file.unwrap().path().display().to_string()[path.len()..];
 
-        if !*show_hidden && display_file.starts_with('.') {
+        if !show_hidden && display_file.starts_with('.') {
             continue;
         } 
         print!("{} ", &display_file);
