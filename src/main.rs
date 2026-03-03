@@ -33,17 +33,23 @@ fn main() {
 }
 
 fn display_contents(path: &str, show_hidden: bool) {
-    let paths = fs::read_dir(path).unwrap();
+    let entries = fs::read_dir(path).unwrap();
     if show_hidden {
         print!(". .. ")
     }
 
-    for file in paths {
-        let display_file = &file.unwrap().path().display().to_string()[path.len()..];
+    for entry in entries {
+        // unrwap entry
+        let entry = entry.unwrap();
+        
+        let file_name = entry.file_name();
+        let display_file = file_name.to_string_lossy();
+        let file_type = entry.file_type().unwrap();
 
         if !show_hidden && display_file.starts_with('.') {
             continue;
-        } 
+        }
+        
         print!("{} ", &display_file);
     }
     print!("\n");
