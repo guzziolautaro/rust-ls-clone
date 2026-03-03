@@ -1,6 +1,8 @@
 use std::io::{self, Write};
 use std::{env, fs, process};
 
+use color_print::cprint;
+
 fn main() {
     let args = env::args().skip(1);
 
@@ -50,7 +52,13 @@ fn display_contents(path: &str, show_hidden: bool) {
             continue;
         }
         
-        print!("{} ", &display_file);
+        if file_type.is_dir() {
+            cprint!("<blue><bold>{} ", &display_file)
+        } else if file_type.is_symlink() {
+            cprint!("<cyan><bold>{} ", &display_file)
+        } else if file_type.is_file() {
+            print!("{} ", &display_file);
+        }
     }
     print!("\n");
     io::stdout().flush().unwrap();
