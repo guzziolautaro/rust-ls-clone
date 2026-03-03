@@ -24,8 +24,9 @@ fn main() {
     // defaulting to ./ if no path provided
     if paths.len() == 0 {
         display_contents( "./", show_hidden);
-    } else {        
+    } else {
         for path in &paths {
+            print!("{}:\n", path);
             display_contents(path, show_hidden);
         }
     }
