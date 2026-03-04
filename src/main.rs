@@ -37,7 +37,7 @@ fn main() {
 fn display_contents(path: &str, show_hidden: bool) {
     let entries = fs::read_dir(path).unwrap();
     if show_hidden {
-        print!(". .. ")
+        cprint!("<blue><bold>. .. ")
     }
 
     for entry in entries {
