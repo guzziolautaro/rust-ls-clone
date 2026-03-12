@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::Path;
 use std::os::unix::fs::MetadataExt;
 
@@ -45,5 +46,26 @@ impl DirEntry {
             hidden: if entry_name.starts_with(".") { true } else { false }
         };
         dir_entry
+    }
+}
+
+pub struct Directory {
+    pub entries: Vec<DirEntry>
+}
+
+impl Directory {
+    pub fn new(path: &str) -> Directory {
+        let directory = Directory {
+            entries: {
+                let mut entries: Vec<DirEntry> = Vec::new();
+
+                for dir in fs::read_dir(path).expect("invalid path") {
+                    entries.push(DirEntry::new(dir.unwrap().path().as_path()));
+                }
+                entries
+            }
+        };
+
+        directory
     }
 }

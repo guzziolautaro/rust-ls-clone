@@ -1,5 +1,5 @@
 use std::io::{self, Write};
-use std::{env, fs, process};
+use std::{env, process};
 
 use color_print::cprint;
 
@@ -28,25 +28,15 @@ fn main() {
 
     // defaulting to ./ if no path provided
     if paths.len() == 0 {
-        let entries = get_entries_from_dir("./");
-        display_dir_entries(entries, show_hidden);
+        let directory = fs_models::Directory::new("./");
+        display_dir_entries(directory.entries, show_hidden);
     } else {
         for path in &paths {
-            let entries = get_entries_from_dir(path);
+            let directory = fs_models::Directory::new(path);
             print!("{}:\n", path);
-            display_dir_entries(entries, show_hidden);
+            display_dir_entries(directory.entries, show_hidden);
         }
     }
-}
-
-fn get_entries_from_dir(path: &str) -> Vec<fs_models::DirEntry> {
-    let mut entries: Vec<fs_models::DirEntry> = Vec::new();
-
-    for dir in fs::read_dir(path).expect("invalid path") {
-        entries.push(fs_models::DirEntry::new(dir.unwrap().path().as_path()));
-    } 
-
-    entries
 }
 
 fn display_dir_entries(entries: Vec<fs_models::DirEntry>, show_hidden: bool) {
