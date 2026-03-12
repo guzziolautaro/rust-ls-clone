@@ -41,17 +41,14 @@ fn main() {
 
 fn display_dir_entries(entries: Vec<fs_models::DirEntry>, show_hidden: bool) {
     for entry in entries {
-        
-        let file_name = entry.name;
-
         if !show_hidden && entry.hidden { continue; }
         
         match entry.file_type {
-            fs_models::FileType::File => cprint!("{} ", &file_name),
-            fs_models::FileType::ExecutableFile => cprint!("<green><bold>{} ", &file_name),
-            fs_models::FileType::CompressedFile => cprint!("<red><bold>{} ", &file_name),
-            fs_models::FileType::Directory => cprint!("<blue><bold>{} ", &file_name),
-            fs_models::FileType::SymLink => cprint!("<cyan><bold>{} ", &file_name)
+            fs_models::FileType::File => cprint!("{} ", &entry.name),
+            fs_models::FileType::ExecutableFile => cprint!("<green><bold>{} ", &entry.name),
+            fs_models::FileType::CompressedFile => cprint!("<red><bold>{} ", &entry.name),
+            fs_models::FileType::Directory => cprint!("<blue><bold>{} ", &entry.name),
+            fs_models::FileType::SymLink => cprint!("<cyan><bold>{} ", &entry.name)
         }
     }
     print!("\n");
