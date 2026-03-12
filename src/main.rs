@@ -19,11 +19,18 @@ struct DirEntry {
     owner: String,
     group: String,
     size: u64,
+    hidden: bool
 }
 
 impl DirEntry {
-    fn new(path: &str) -> DirEntry {
-        let metadata = fs::metadata(path).expect("invalid path");
+    fn new(path: &Path) -> DirEntry {
+        let metadata = path.metadata().unwrap();
+        let entry_name = match path.file_name() {
+            Some(s) => {
+                s.to_string_lossy().to_string()
+            }
+            None => String::new()
+        };
 
         let dir_entry = DirEntry {
             file_type: {
@@ -33,16 +40,12 @@ impl DirEntry {
                     FileType::File
                 }
             },
-            name: match Path::new(path).file_name() {
-                Some(s) => {
-                    s.to_string_lossy().to_string()
-                }
-                None => String::new()
-            },
+            name: String::from(&entry_name),
             link_count: metadata.nlink(),
             owner: String::from("root"), // todo
             group: String::from("root"), // todo
-            size: metadata.size()
+            size: metadata.size(),
+            hidden: if entry_name.starts_with(".") { true } else { false }
         };
         dir_entry
     }
@@ -71,43 +74,40 @@ fn main() {
 
     // defaulting to ./ if no path provided
     if paths.len() == 0 {
-        display_direntry( "./", show_hidden);
+        let entries = get_entries_from_dir("./");
+        display_dir_entries(entries, show_hidden);
     } else {
         for path in &paths {
+            let entries = get_entries_from_dir(path);
             print!("{}:\n", path);
-            display_direntry(path, show_hidden);
+            display_dir_entries(entries, show_hidden);
         }
     }
 }
 
-fn get_entries() {
-    // todo
+fn get_entries_from_dir(path: &str) -> Vec<DirEntry> {
+    let mut entries: Vec<DirEntry> = Vec::new();
+
+    for dir in fs::read_dir(path).expect("invalid path") {
+        entries.push(DirEntry::new(dir.unwrap().path().as_path()));
+    } 
+
+    entries
 }
 
-fn display_direntry(path: &str, show_hidden: bool) {
-    let entries = fs::read_dir(path).unwrap();
-    if show_hidden {
-        cprint!("<blue><bold>. .. ")
-    }
-
+fn display_dir_entries(entries: Vec<DirEntry>, show_hidden: bool) {
     for entry in entries {
-        // unrwap entry
-        let entry = entry.unwrap();
         
-        let file_name = entry.file_name();
-        let display_file = file_name.to_string_lossy();
-        let file_type = entry.file_type().unwrap();
+        let file_name = entry.name;
 
-        if !show_hidden && display_file.starts_with('.') {
-            continue;
-        }
+        if !show_hidden && entry.hidden { continue; }
         
-        if file_type.is_dir() {
-            cprint!("<blue><bold>{} ", &display_file)
-        } else if file_type.is_symlink() {
-            cprint!("<cyan><bold>{} ", &display_file)
-        } else if file_type.is_file() {
-            print!("{} ", &display_file);
+        match entry.file_type {
+            FileType::File => cprint!("{} ", &file_name),
+            FileType::ExecutableFile => cprint!("<green><bold>{} ", &file_name),
+            FileType::CompressedFile => cprint!("<red><bold>{} ", &file_name),
+            FileType::Directory => cprint!("<blue><bold>{} ", &file_name),
+            FileType::SymLink => cprint!("<cyan><bold>{} ", &file_name)
         }
     }
     print!("\n");
