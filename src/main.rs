@@ -40,17 +40,17 @@ fn main() {
 }
 
 fn display_dir_entries(entries: Vec<fs_models::DirEntry>, show_hidden: bool) {
-    for entry in entries {
-        if !show_hidden && entry.hidden { continue; }
-        
-        match entry.file_type {
-            fs_models::FileType::File => cprint!("{} ", &entry.name),
-            fs_models::FileType::ExecutableFile => cprint!("<green><bold>{} ", &entry.name),
-            fs_models::FileType::CompressedFile => cprint!("<red><bold>{} ", &entry.name),
-            fs_models::FileType::Directory => cprint!("<blue><bold>{} ", &entry.name),
-            fs_models::FileType::SymLink => cprint!("<cyan><bold>{} ", &entry.name)
+    entries.iter()
+    .filter(|f| !(!show_hidden && f.hidden))
+    .for_each(|f| {
+        match f.file_type {
+            fs_models::FileType::File => cprint!("{} ", &f.name),
+            fs_models::FileType::ExecutableFile => cprint!("<green><bold>{} ", &f.name),
+            fs_models::FileType::CompressedFile => cprint!("<red><bold>{} ", &f.name),
+            fs_models::FileType::Directory => cprint!("<blue><bold>{} ", &f.name),
+            fs_models::FileType::SymLink => cprint!("<cyan><bold>{} ", &f.name)
         }
-    }
+    });
     print!("\n");
     io::stdout().flush().unwrap();
 }

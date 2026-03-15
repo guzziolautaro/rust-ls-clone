@@ -22,13 +22,12 @@ pub struct DirEntry {
 
 impl DirEntry {
     pub fn new(path: &Path) -> DirEntry {
-        let metadata = path.metadata().unwrap();
-        let entry_name = match path.file_name() {
-            Some(s) => {
-                s.to_string_lossy().to_string()
-            }
-            None => String::new()
-        };
+        let metadata = path.metadata().expect("invalid_path_error");
+        let entry_name = path
+        .file_name()
+        .and_then(|f| f.to_str())
+        .unwrap_or("default_error")
+        .to_string();
 
         let dir_entry = DirEntry {
             file_type: {
@@ -56,14 +55,11 @@ pub struct Directory {
 impl Directory {
     pub fn new(path: &str) -> Directory {
         let directory = Directory {
-            entries: {
-                let mut entries: Vec<DirEntry> = Vec::new();
-
-                for dir in fs::read_dir(path).expect("invalid path") {
-                    entries.push(DirEntry::new(dir.unwrap().path().as_path()));
-                }
-                entries
-            }
+            entries: fs::read_dir(path)
+                .expect("invalid_directory_path")
+                .into_iter()
+                .map(|f| DirEntry::new(f.unwrap().path().as_path()))
+                .collect()
         };
 
         directory
