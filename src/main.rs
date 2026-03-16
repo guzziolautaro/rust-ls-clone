@@ -15,17 +15,15 @@ fn main() {
     let mut show_hidden = false;
 
     // flag identifying
-    for flag in &flags {
-        match flag.as_str() {
-            "-a" => {
-                show_hidden = true;
-            }
-            _ => {
-                eprintln!("Invalid flag {}", flag);
-                process::exit(1)
-            }
+    flags.iter().for_each(|flag| match flag.as_str() {
+        "-a" => {
+            show_hidden = true;
         }
-    }
+        _ => {
+            eprintln!("Invalid flag {}", flag);
+            process::exit(1)
+        }
+    });
 
     // defaulting to ./ if no path provided
     if paths.len() == 0 {
