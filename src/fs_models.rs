@@ -42,11 +42,7 @@ impl DirEntry {
             owner: String::from("root"), // todo
             group: String::from("root"), // todo
             size: metadata.size(),
-            hidden: if entry_name.starts_with(".") {
-                true
-            } else {
-                false
-            },
+            hidden: entry_name.starts_with("."),
         };
         dir_entry
     }
